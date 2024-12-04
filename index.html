@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Game</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-gap: 10px;
+        }
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            user-select: none;
+        }
+        .card.hidden {
+            background-color: #444;
+            color: transparent;
+        }
+        .card.matched {
+            background-color: #4caf50;
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+    <h1>Memory Game</h1>
+    <div class="grid"></div>
+
+    <script>
+        // بيانات البطاقات (يجب أن تكون الأزواج متطابقة)
+        const cardValues = ["A", "B", "C", "D", "E", "F", "G", "H"];
+        const cards = [...cardValues, ...cardValues].sort(() => Math.random() - 0.5);
+
+        const grid = document.querySelector(".grid");
+        let firstCard = null;
+        let secondCard = null;
+        let lockBoard = false;
+
+        // إنشاء البطاقات
+        cards.forEach(value => {
+            const card = document.createElement("div");
+            card.classList.add("card", "hidden");
+            card.textContent = value;
+            card.addEventListener("click", () => flipCard(card));
+            grid.appendChild(card);
+        });
+
+        function flipCard(card) {
+            if (lockBoard || card.classList.contains("matched") || !card.classList.contains("hidden")) {
+                return;
+            }
+
+            card.classList.remove("hidden");
+
+            if (!firstCard) {
+                // أول بطاقة تُضغط
+                firstCard = card;
+            } else if (!secondCard) {
+                // ثاني بطاقة تُضغط
+                secondCard = card;
+                checkForMatch();
+            }
+        }
+
+        function checkForMatch() {
+            lockBoard = true;
+
+            if (firstCard.textContent === secondCard.textContent) {
+                // تطابق البطاقتين
+                firstCard.classList.add("matched");
+                secondCard.classList.add("matched");
+                resetTurn();
+            } else {
+                // عدم تطابق، إعادة إخفاء البطاقات بعد قليل
+                setTimeout(() => {
+                    firstCard.classList.add("hidden");
+                    secondCard.classList.add("hidden");
+                    resetTurn();
+                }, 1000);
+            }
+        }
+
+        function resetTurn() {
+            [firstCard, secondCard] = [null, null];
+            lockBoard = false;
+        }
+    </script>
+</body>
+</html>
